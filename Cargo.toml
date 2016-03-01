@@ -2,4 +2,6 @@
 name = "mapcore"
 version = "0.1.0"
 authors = ["Sam Crow <samcrow@uw.edu>"]
-description = "Basic functionality for rendering multi-layer maps with various projections"
+description = "Building blocks for rendering multi-layer maps with various projections. Designed for, but does not require, OpenGL drawing."
+license = "MIT/Apache-2.0"
+repository = "https://github.com/samcrow/rust-mapcore"
