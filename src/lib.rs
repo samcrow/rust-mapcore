@@ -14,10 +14,10 @@ pub mod map;
 
 /// Represents a latitude, in degrees
 #[derive(Debug,Copy,Clone,PartialEq,PartialOrd)]
-pub struct Latitude(f64);
+pub struct Latitude(pub f64);
 /// Represents a longitude, in degrees
 #[derive(Debug,Copy,Clone,PartialEq,PartialOrd)]
-pub struct Longitude(f64);
+pub struct Longitude(pub f64);
 
 impl Latitude {
     /// Converts this latitude into an angle in radians
