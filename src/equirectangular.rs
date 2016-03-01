@@ -10,7 +10,8 @@ impl Projection for EquirectangularProjection {
     fn project(&self, position: &LatLon) -> Point<f64> {
         let x: f64 = position.longitude.into();
         let y: f64 = position.latitude.into();
-        Point { x: x, y: y }
+        // Invert Y so that it increases going down
+        Point { x: x, y: -y }
     }
 
     fn unproject(&self, position: &Point<f64>) -> LatLon {
