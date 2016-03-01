@@ -25,7 +25,7 @@ impl StereographicProjection {
 }
 
 impl Projection for StereographicProjection {
-    fn project(&self, position: &LatLon) -> Point {
+    fn project(&self, position: &LatLon) -> Point<f64> {
         // Calculate a position relative to the projection point
         let zenith_radians = (position.latitude - self.projection_point.latitude).to_radians();
         let azimuth_radians = (position.longitude - self.projection_point.longitude).to_radians();
@@ -38,7 +38,7 @@ impl Projection for StereographicProjection {
 
         Point { x: x, y: y }
     }
-    fn unproject(&self, position: &Point) -> LatLon {
+    fn unproject(&self, position: &Point<f64>) -> LatLon {
         // Convert to polar coordinates
         let r = f64::hypot(position.x, position.y);
         let theta = f64::atan2(position.y, position.x);

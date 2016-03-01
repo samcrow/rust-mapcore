@@ -1,4 +1,5 @@
 use std::ops::{Add, Sub, Mul};
+use std::iter::FromIterator;
 
 /// Provides projections between a sphere and the map view
 pub mod projection;
@@ -167,21 +168,21 @@ pub fn normalize_longitude(longitude: Longitude) -> Longitude {
 
 /// Stores a point
 #[derive(Debug,Clone,PartialEq)]
-pub struct Point {
+pub struct Point<N> {
     /// X coordinate
-    pub x: f64,
+    pub x: N,
     /// Y coordinate
-    pub y: f64,
+    pub y: N,
 }
 
-impl Point {
+impl Point<f64> {
     /// Returns a point at (0, 0)
-    pub fn origin() -> Point {
+    pub fn origin() -> Point<f64> {
         Point { x: 0f64, y: 0f64 }
     }
 }
 
-impl Add for Point {
+impl<N> Add for Point<N> where N: Add<Output = N> {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
         Point {
@@ -190,7 +191,7 @@ impl Add for Point {
         }
     }
 }
-impl Sub for Point {
+impl<N> Sub for Point<N> where N: Sub<Output = N> {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
         Point {
@@ -199,12 +200,44 @@ impl Sub for Point {
         }
     }
 }
-impl Mul<f64> for Point {
+impl<N> Mul<N> for Point<N> where N: Mul<N, Output = N> + Clone {
     type Output = Self;
-    fn mul(self, rhs: f64) -> Self {
+    fn mul(self, rhs: N) -> Self {
         Point {
-            x: self.x * rhs,
+            x: self.x * rhs.clone(),
             y: self.y * rhs,
+        }
+    }
+}
+
+///
+/// A polygon
+///
+/// P is the type used to represent a point
+///
+pub struct Polygon<P> {
+    /// The points in this quadrilateral, in clockwise order
+    points: Vec<P>,
+}
+
+impl<P> Polygon<P> where P: Clone {
+    pub fn new(points: &[P]) -> Polygon<P> {
+        Polygon {
+            points: points.iter().cloned().collect(),
+        }
+    }
+}
+
+impl<P> Polygon<P> {
+    pub fn points<'a>(&'a self) -> &'a [P] {
+        &self.points
+    }
+}
+
+impl<P> FromIterator<P> for Polygon<P> {
+    fn from_iter<T>(iterator: T) -> Self where T: IntoIterator<Item = P> {
+        Polygon {
+            points: Vec::from_iter(iterator)
         }
     }
 }

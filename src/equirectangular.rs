@@ -7,13 +7,13 @@ use projection::Projection;
 pub struct EquirectangularProjection;
 
 impl Projection for EquirectangularProjection {
-    fn project(&self, position: &LatLon) -> Point {
+    fn project(&self, position: &LatLon) -> Point<f64> {
         let x: f64 = position.longitude.into();
         let y: f64 = position.latitude.into();
         Point { x: x, y: y }
     }
 
-    fn unproject(&self, position: &Point) -> LatLon {
+    fn unproject(&self, position: &Point<f64>) -> LatLon {
         LatLon {
             latitude: Latitude(position.y),
             longitude: Longitude(position.x),

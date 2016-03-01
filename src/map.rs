@@ -79,14 +79,14 @@ impl Map {
 ///
 struct ViewProjection {
     /// The location, in map coordinates, where the center of the viewport is located
-    center: Point,
+    center: Point<f64>,
     /// The ratio of the size of a display unit to the size of a map coordinate unit
     zoom: f64,
 }
 
 impl ViewProjection {
     /// Projects a point in map coordinates to a point in screen coordinates
-    pub fn project(&self, map: &Point, viewport_width: i32, viewport_height: i32) -> Point {
+    pub fn project(&self, map: &Point<f64>, viewport_width: i32, viewport_height: i32) -> Point<f64> {
         // Calculate the vector from the center point to the map point
         let mut map_vector = map.clone() - self.center.clone();
         // Scale by the zoom ratio
@@ -97,7 +97,7 @@ impl ViewProjection {
         map_vector
     }
     /// Unprojects a point from screen coordinates to a point in map coordinates
-    pub fn unproject(&self, screen: &Point, viewport_width: i32, viewport_height: i32) -> Point {
+    pub fn unproject(&self, screen: &Point<f64>, viewport_width: i32, viewport_height: i32) -> Point<f64> {
         // Shift to make it relative to the center
         let mut map_vector = screen.clone() - Point { x: (viewport_width / 2) as f64, y: (viewport_height / 2) as f64 };
         // Scale by inverse zoom ratio
@@ -134,11 +134,11 @@ impl<'a, 'b> CombinedProjection<'a, 'b> {
 }
 
 impl<'a, 'b> Projection for CombinedProjection<'a, 'b> {
-    fn project(&self, position: &LatLon) -> Point {
+    fn project(&self, position: &LatLon) -> Point<f64> {
         let map = self.projection.project(position);
         self.view_projection.project(&map, self.viewport_width, self.viewport_height)
     }
-    fn unproject(&self, position: &Point) -> LatLon {
+    fn unproject(&self, position: &Point<f64>) -> LatLon {
         let map = self.view_projection.unproject(position, self.viewport_width, self.viewport_height);
         self.projection.unproject(&map)
     }
