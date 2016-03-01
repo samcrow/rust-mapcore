@@ -1,0 +1,5 @@
+[package]
+name = "mapcore"
+version = "0.1.0"
+authors = ["Sam Crow <samcrow@uw.edu>"]
+description = "Basic functionality for rendering multi-layer maps with various projections"
