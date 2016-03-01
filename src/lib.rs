@@ -1,42 +1,168 @@
-
+use std::ops::{Add, Sub, Mul};
 
 /// Provides projections between a sphere and the map view
 pub mod projection;
+/// Implements a stereographic projection
+pub mod stereographic;
+/// Implements a simple equirectangular projection
+pub mod equirectangular;
 /// Layers that can be drawn on the map
 pub mod layer;
 /// Represents a map
 pub mod map;
 
+/// Represents a latitude, in degrees
+#[derive(Debug,Copy,Clone,PartialEq,PartialOrd)]
+pub struct Latitude(f64);
+/// Represents a longitude, in degrees
+#[derive(Debug,Copy,Clone,PartialEq,PartialOrd)]
+pub struct Longitude(f64);
+
+impl Latitude {
+    /// Converts this latitude into an angle in radians
+    pub fn to_radians(self) -> f64 {
+        f64::to_radians(self.into())
+    }
+}
+impl Longitude {
+    /// Converts this longitude into an angle in radians
+    pub fn to_radians(self) -> f64 {
+        f64::to_radians(self.into())
+    }
+}
+impl Into<f64> for Latitude {
+    fn into(self) -> f64 {
+        self.0
+    }
+}
+impl Into<f64> for Longitude {
+    fn into(self) -> f64 {
+        self.0
+    }
+}
+impl From<f64> for Latitude {
+    fn from(value: f64) -> Self {
+        Latitude(value)
+    }
+}
+impl From<f64> for Longitude {
+    fn from(value: f64) -> Self {
+        Longitude(value)
+    }
+}
+impl Sub for Latitude {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        Self::from(self.0 - rhs.0)
+    }
+}
+impl Sub for Longitude {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        Self::from(self.0 - rhs.0)
+    }
+}
+impl Add for Latitude {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
+        Self::from(self.0 + rhs.0)
+    }
+}
+impl Add for Longitude {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
+        Self::from(self.0 + rhs.0)
+    }
+}
+
 /// Stores a latitude and longitude
 #[derive(Debug,Clone,PartialEq)]
 pub struct LatLon {
     /// Latitude, degrees
-    pub latitude: f64,
+    pub latitude: Latitude,
     /// Longitude, degrees
-    pub longitude: f64,
+    pub longitude: Longitude,
 }
 
 impl LatLon {
     /// Returns a LatLon that is dimetrically opposite from this (on the other side of the planet)
     pub fn antipode(&self) -> LatLon {
         LatLon {
-            latitude: normalize_latitude(self.latitude + 180.0),
-            longitude: normalize_longitude(self.longitude + 180.0),
+            latitude: normalize_latitude(self.latitude + Latitude(180.0)),
+            longitude: normalize_longitude(self.longitude + Longitude(180.0)),
         }
     }
 }
 
+///
+/// A rectangle in latitude and longitude
+///
+#[derive(Debug,Clone,PartialEq)]
+pub struct LatLonRect {
+    /// The north latitude (always >= south)
+    north: Latitude,
+    /// The south latitude
+    south: Latitude,
+    /// The east latitude (always >= west)
+    east: Longitude,
+    /// The west latitude
+    west: Longitude,
+}
+
+impl LatLonRect {
+    pub fn from_bounds(north: Latitude, south: Latitude, east: Longitude, west: Longitude) -> LatLonRect {
+        LatLonRect {
+            north: north,
+            south: south,
+            east: east,
+            west: west,
+        }
+    }
+    pub fn from_corners(northwest: &LatLon, southeast: &LatLon) -> LatLonRect {
+        LatLonRect {
+            north: northwest.latitude,
+            south: southeast.latitude,
+            east: southeast.longitude,
+            west: northwest.longitude,
+        }
+    }
+    pub fn north(&self) -> Latitude {
+        self.north
+    }
+    pub fn south(&self) -> Latitude {
+        self.south
+    }
+    pub fn east(&self) -> Longitude {
+        self.east
+    }
+    pub fn west(&self) -> Longitude {
+        self.west
+    }
+    pub fn set_north(&mut self, north: Latitude) {
+        self.north = north
+    }
+    pub fn set_south(&mut self, south: Latitude) {
+        self.south = south
+    }
+    pub fn set_east(&mut self, east: Longitude) {
+        self.east = east
+    }
+    pub fn set_west(&mut self, west: Longitude) {
+        self.west = west
+    }
+}
+
 /// Normalizes a latitude into the range [-90, 90]
-pub fn normalize_latitude(latitude: f64) -> f64 {
-    let radians = latitude.to_radians();
+pub fn normalize_latitude(latitude: Latitude) -> Latitude {
+    let radians = latitude.0.to_radians();
     let result = f64::atan(f64::sin(radians) / f64::abs(f64::cos(radians)));
-    result.to_degrees()
+    Latitude(result.to_degrees())
 }
 /// Normalizes a longitude into the range [-180, 180]
-pub fn normalize_longitude(longitude: f64) -> f64 {
-    let radians = longitude.to_radians();
+pub fn normalize_longitude(longitude: Longitude) -> Longitude {
+    let radians = longitude.0.to_radians();
     let result = f64::atan2(f64::sin(radians), f64::cos(radians));
-    result.to_degrees()
+    Longitude(result.to_degrees())
 }
 
 /// Stores a point
@@ -46,6 +172,41 @@ pub struct Point {
     pub x: f64,
     /// Y coordinate
     pub y: f64,
+}
+
+impl Point {
+    /// Returns a point at (0, 0)
+    pub fn origin() -> Point {
+        Point { x: 0f64, y: 0f64 }
+    }
+}
+
+impl Add for Point {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
+        Point {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+impl Sub for Point {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        Point {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+impl Mul<f64> for Point {
+    type Output = Self;
+    fn mul(self, rhs: f64) -> Self {
+        Point {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
 }
 
 #[test]
