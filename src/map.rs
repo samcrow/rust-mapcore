@@ -66,7 +66,7 @@ impl Map {
     ///
     /// Draws this map with its upper left corner at (x, y) with the specified width and height
     ///
-    pub fn draw(&self, x: u32, y: u32, width: u32, height: u32) {
+    pub fn draw(&self, x: i32, y: i32, width: i32, height: i32) {
         let combined = CombinedProjection::new(self.projection.as_ref(), &self.view_projection, width, height);
         for layer in self.layers.iter() {
             layer.draw(&combined, x, y, width, height);
@@ -86,7 +86,7 @@ struct ViewProjection {
 
 impl ViewProjection {
     /// Projects a point in map coordinates to a point in screen coordinates
-    pub fn project(&self, map: &Point, viewport_width: u32, viewport_height: u32) -> Point {
+    pub fn project(&self, map: &Point, viewport_width: i32, viewport_height: i32) -> Point {
         // Calculate the vector from the center point to the map point
         let mut map_vector = map.clone() - self.center.clone();
         // Scale by the zoom ratio
@@ -97,7 +97,7 @@ impl ViewProjection {
         map_vector
     }
     /// Unprojects a point from screen coordinates to a point in map coordinates
-    pub fn unproject(&self, screen: &Point, viewport_width: u32, viewport_height: u32) -> Point {
+    pub fn unproject(&self, screen: &Point, viewport_width: i32, viewport_height: i32) -> Point {
         // Shift to make it relative to the center
         let mut map_vector = screen.clone() - Point { x: (viewport_width / 2) as f64, y: (viewport_height / 2) as f64 };
         // Scale by inverse zoom ratio
@@ -117,13 +117,13 @@ struct CombinedProjection<'a, 'b> {
     /// The view projection
     view_projection: &'b ViewProjection,
     /// The width of the viewport in pixels
-    viewport_width: u32,
+    viewport_width: i32,
     /// The height of the viewport in pixels
-    viewport_height: u32,
+    viewport_height: i32,
 }
 
 impl<'a, 'b> CombinedProjection<'a, 'b> {
-    pub fn new(projection: &'a Projection, view_projection: &'b ViewProjection, viewport_width: u32, viewport_height: u32) -> CombinedProjection<'a, 'b> {
+    pub fn new(projection: &'a Projection, view_projection: &'b ViewProjection, viewport_width: i32, viewport_height: i32) -> CombinedProjection<'a, 'b> {
         CombinedProjection {
             projection: projection,
             view_projection: view_projection,

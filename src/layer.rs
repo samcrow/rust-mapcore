@@ -11,7 +11,7 @@ pub trait Layer {
     /// The provided Projection is a projection that can map between latitude/longitude and
     /// display coordinates.
     ///
-    fn draw(&self, projection: &Projection, x: u32, y: u32, width: u32, height: u32);
+    fn draw(&self, projection: &Projection, x: i32, y: i32, width: i32, height: i32);
 
     ///
     /// Returns a LatLonRect that bounds the items that this layer displays, or None if
