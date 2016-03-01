@@ -215,6 +215,7 @@ impl<N> Mul<N> for Point<N> where N: Mul<N, Output = N> + Clone {
 ///
 /// P is the type used to represent a point
 ///
+#[derive(Debug,Clone,PartialEq)]
 pub struct Polygon<P> {
     /// The points in this quadrilateral, in clockwise order
     points: Vec<P>,
