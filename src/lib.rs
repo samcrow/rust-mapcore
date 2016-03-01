@@ -7,6 +7,8 @@ pub mod projection;
 pub mod stereographic;
 /// Implements a simple equirectangular projection
 pub mod equirectangular;
+/// Implements a Miller cylindrical projection
+pub mod miller;
 /// Layers that can be drawn on the map
 pub mod layer;
 /// Represents a map
