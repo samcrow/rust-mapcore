@@ -12,8 +12,8 @@ use layer::Layer;
 ///   The only constraint on map coordinates is that the X coordinate increases going right
 ///   and the Y coordinate increases going up.
 /// * Display coordinates: Display coordinates are in pixels, with the X coordinate increasing
-///   going right and the Y coordinate increasing going down. The origin is located at the
-///   upper left corner of the viewport.
+///   going right and the Y coordinate increasing going up. The origin is located at the
+///   lower left corner of the viewport.
 ///
 /// The map's projection converts between latitude/longitude and map coordinates. The map's
 /// view projection converts between map coordinates and display coordinates.
@@ -91,8 +91,6 @@ impl ViewProjection {
         let mut map_vector = map.clone() - self.center.clone();
         // Scale by the zoom ratio
         map_vector = map_vector * self.zoom;
-        // Invert Y to make it increase downwards
-        map_vector.y *= -1.0;
         // map_vector is now the screen position relative to the center
         // Shift it to make it relative to the corner
         map_vector = map_vector + Point { x: (viewport_width / 2) as f64, y: (viewport_height / 2) as f64 };
@@ -102,8 +100,6 @@ impl ViewProjection {
     pub fn unproject(&self, screen: &Point<f64>, viewport_width: i32, viewport_height: i32) -> Point<f64> {
         // Shift to make it relative to the center
         let mut map_vector = screen.clone() - Point { x: (viewport_width / 2) as f64, y: (viewport_height / 2) as f64 };
-        // Invert Y to make it increase upwards
-        map_vector.y *= -1.0;
         // Scale by inverse zoom ratio
         map_vector = map_vector * (1f64 / self.zoom);
         // Make relative to center point
